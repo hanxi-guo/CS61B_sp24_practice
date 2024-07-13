@@ -29,7 +29,7 @@
 	1. if we set a static class inside another class, the inner class's instance cannot access the instance outside itself anymore
 	2. if the instance private but the class is public, we could make this class variables outside, but we could not use it to do anything else
 	3. NOTICE: item & next could be many in one SLList, but there could only be one SLList eg.![[Screenshot 2024-07-12 at 11.36.06 PM.png]]
-	4. Here since the number of parameter of the method are not equal, so the overloaded is allowable![[Screenshot 2024-07-12 at 11.37.50 PM.png]]
+	4. Here since the number of parameter of the method are not equal, so the overloaded is allowable!![]([https://cs61b-2.gitbook.io/~gitbook/image?url=https%3A%2F%2Fjoshhug.gitbooks.io%2Fhug61b%2Fcontent%2Fchap2%2Ffig22%2FIntList_vs_SLList.png&width=768&dpr=4&quality=100&sign=6f49ad6f&sv=1](https://photos.google.com/photo/AF1QipOwT2Be8FDgsOLzGHOHEQuW3miWNI1Cw98kSwgL))
 	5. keep track of size when user modify the list instead calculating it after the whole SLList has been set, would save much more time
 		- and without using SLList, there is no room for size() method in the IntList
 8.  Improvement : Sentinel node

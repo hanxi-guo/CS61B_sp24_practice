@@ -113,20 +113,25 @@ public class Model extends Observable {
      *    and the trailing tile does not.
      * */
     public boolean tilt(Side side) {
-        // TODO: Tasks 8 and 9. Fill in this function.
+        // Set to keep track of whether any columns were changed
+        Set<Boolean> changedSet = new HashSet<>();
         boolean changed = false;
         board.setViewingPerspective(side);
+
+        // Iterate over each column and tilt it
         for (int col = 0; col < board.size(); col++) {
             boolean columnChanged = tiltColumn(col);
-            if (columnChanged) {
-                changed = true;
+            changedSet.add(columnChanged);
+        }
+
+        // Check if at least one column was changed
+        for (boolean change : changedSet){
+            if (change){
+                changed =  true;
                 break;
             }
         }
         board.setViewingPerspective(Side.NORTH);
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
 
         checkGameOver();
         if (changed) {
@@ -139,8 +144,12 @@ public class Model extends Observable {
     public boolean moveTileUpAsFarAsPossible( int x , int y, Set<Tile> mergedTiles) {
         Tile currTile = board.tile(x, y);
         int myValue = currTile.value();
+
+        // Set two variables to determine whether the tiles in the column moved
         int currentY = y;
         int targetY = y;
+
+        // Determine the furthest position the tile can move to
         while (y < board.size() - 1) {
             int row = y + 1;
             Tile nextTile = board.tile(x, row);
@@ -158,12 +167,17 @@ public class Model extends Observable {
                 y++;
             }
         }
+
+        // move the tile to the target place
         boolean isMerged = board.move(x, targetY, currTile);
         boolean isMoved = (targetY != currentY);
+
+        // Update score and add merged tile to set
         if (isMerged) {
             score += currTile.next().value();
             mergedTiles.add(board.tile(x, targetY));
         }
+
         return isMoved || isMerged;
     }
 
@@ -176,7 +190,11 @@ public class Model extends Observable {
      * */
     public boolean tiltColumn(int x) {
         boolean moved = false;
+
+        //Set a hashset to store the mergedTiles
         Set<Tile> mergedTiles = new HashSet<>();
+
+        // Move each tile in the column as far up as possible
         for (int row = board.size() - 1; row >= 0; row--) {
             Tile currTile = board.tile(x, row);
             int size = board.size();
@@ -184,6 +202,7 @@ public class Model extends Observable {
                 moved = moveTileUpAsFarAsPossible(x, row, mergedTiles);
             }
         }
+
         return moved;
     }
 

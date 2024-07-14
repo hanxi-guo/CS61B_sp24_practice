@@ -52,7 +52,8 @@ public class DebugExercise2 {
         int i = 0;
         int sum = 0;
         while (i < x.length) {
-            sum = sum + add(sum, x[i]);
+            sum =  add(sum, x[i]);
+            // the sum was added twice "Tricky"
             i = i + 1;
         }
         return sum;

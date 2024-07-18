@@ -1,9 +1,6 @@
 package deque;
 
 
-import org.apache.commons.collections.iterators.ArrayListIterator;
-
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -24,27 +21,47 @@ public class ArrayDeque<T> {
     }
 
     private void resize(int capacity) {
-        T[] a = (T[]) new Object[capacity];
-        System.arraycopy(array, 0, a, 0, size);
-        array = a;
+        T[] newArray = (T[]) new Object[capacity];
+
+        // Ensure some space at both ends since the min usage ratio is 25%
+        // newFirstPos is where the new array start (MUST HAVE!!!)
+        int newFirstPos = capacity / 4;
+
+
+        System.arraycopy(array, 0, newArray, 0, size);
+
+        array = newArray;
+        nextFirst = Math.abs(newFirstPos - 1) % array.length;
+        nextLast = Math.abs(nextFirst + size + 1) % array.length;
     }
 
     public void addFirst(T item){
+        if (isEmpty()){
+            array[nextFirst]  = item;
+            nextFirst = (nextFirst - 1 + array.length) % array.length;
+            size ++;
+            return;
+        }
         if (size == array.length){
-            size = size*2;
-            resize(size);
+            resize(size*2);
         }
         array[nextFirst] = item;
-        nextFirst = (nextFirst - 1 + size) % size;
+        nextFirst = (nextFirst - 1 + array.length) % array.length;
         size ++;
     }
     public void addLast(T item){
+        if (isEmpty()){
+
+            array[nextLast] = item;
+            nextLast = (nextLast + 1) % array.length;
+            size ++;
+            return;
+        }
         if (size == array.length){
-            size = size*2;
-            resize(size);
+            resize(size*2);
         }
         array[nextLast] = item;
-        nextLast = (nextLast + 1) % size;
+        nextLast = (nextLast + 1) % array.length;
         size ++;
     }
 
@@ -67,7 +84,7 @@ public class ArrayDeque<T> {
         if (size == 0){
             return null;
         }
-        int index = (nextFirst + 1 ) % size;
+        int index = (nextFirst + 1 ) % array.length;
         T t = array[index];
         array[index] = null;
         nextFirst = index;
@@ -75,7 +92,7 @@ public class ArrayDeque<T> {
 
         // downsize the array when usage ratio is too small
         if (size > 0 && size < array.length * MIN_USAGE_RATIO) {
-            resize(array.length / 2);
+            resize(array.length/2);
         }
         return t;
     }
@@ -84,7 +101,7 @@ public class ArrayDeque<T> {
         if (size == 0){
             return null;
         }
-        int index = (nextLast - 1 + size) % size;
+        int index = (nextLast - 1 + array.length) % array.length;
         T t = array[index];
         array[index] = null;
         nextLast = index;
@@ -92,13 +109,13 @@ public class ArrayDeque<T> {
 
         // downsize the array when usage ratio is too small
         if (size > 0 && size < array.length * MIN_USAGE_RATIO) {
-            resize(array.length / 2);
+            resize(size);
         }
         return t;
     }
 
     public T get(int index){
-        if (index >= size || index < 0){
+        if (index > size - 1 || index < 0){
             return null;
         }
         return array[index];
@@ -126,8 +143,23 @@ public class ArrayDeque<T> {
         }
     }
 
+    @Override
     public boolean equals(Object o){
-        return o instanceof ArrayDeque && o.equals(this);
+        // Reference equality check, directly return true
+        if (this == o) return true;
+        if (o instanceof ArrayDeque){
+            // type transferring
+            ArrayDeque<?> other = (ArrayDeque<?>) o;
+            if (size != other.size) return false;
+            for (int i = 0; i <= this.size; i++) {
+                T thisElement = this.array[i];
+                Object otherElement = other.array[i];
+                if (thisElement != otherElement){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
-
 }

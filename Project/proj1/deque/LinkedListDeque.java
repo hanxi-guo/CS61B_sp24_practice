@@ -18,7 +18,7 @@ public class LinkedListDeque<T> {
         }
     }
 
-    private Node<T> sentinel;
+    private Node<T> sentinel = new Node<>(null);
     private Integer size;
 
     public void addFirst(T item) {
@@ -38,9 +38,10 @@ public class LinkedListDeque<T> {
     //almost same as addFirst because of circular
     public void addLast(T item) {
         Node<T> addNode = new Node<>(item);
-        addNode.previous = sentinel;
-        addNode.next = sentinel.next;
         sentinel.previous.next = addNode;
+        addNode.next = sentinel;
+        addNode.previous = sentinel.previous;
+
         sentinel.previous = addNode;
         size ++;
     }
@@ -65,7 +66,7 @@ public class LinkedListDeque<T> {
 
     public T removeFirst() {
         Node<T> firstNode = sentinel.next;
-        if (size == 0) {
+        if (isEmpty()) {
             return null;
         }
         // remove the pointers to that object.
@@ -76,8 +77,8 @@ public class LinkedListDeque<T> {
     }
 
     public T removeLast() {
-        Node<T> lastNode = sentinel.next;
-        if (size == 0) {
+        Node<T> lastNode = sentinel.previous;
+        if (isEmpty()) {
             return null;
         }
         // remove the pointers to that object.
@@ -134,7 +135,8 @@ public class LinkedListDeque<T> {
     }
 
     public LinkedListDeque(){
-        sentinel = new Node<>(null);
+        sentinel.next = sentinel;
+        sentinel.previous = sentinel;
         size = 0;
     }
 

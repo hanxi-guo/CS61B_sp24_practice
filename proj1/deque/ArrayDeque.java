@@ -7,8 +7,11 @@ import java.util.NoSuchElementException;
 public class ArrayDeque<T> {
     private T[] array;
     private int size;
-    private int nextFirst;
-    private int nextLast;
+
+    //since I think nextfirst/nextlast is less convenient when resizing
+    // use head and tail instead of it
+    private int head;
+    private int tail;
     private final int InitSize = 8;
     private static final double MIN_USAGE_RATIO = 0.25;
 
@@ -16,52 +19,40 @@ public class ArrayDeque<T> {
     public ArrayDeque() {
         this.array =  (T []) new Object[InitSize];
         this.size = 0;
-        this.nextFirst = 0;
-        this.nextLast = 1;
+        this.head = 0;
+        this.tail = 0;
     }
 
+    // the most challenging method
     private void resize(int capacity) {
         T[] newArray = (T[]) new Object[capacity];
-
-        // Ensure some space at both ends since the min usage ratio is 25%
-        // newFirstPos is where the new array start (MUST HAVE!!!)
-        int newFirstPos = capacity / 4;
-
-
-        System.arraycopy(array, 0, newArray, 0, size);
+        // the new array start from head !!!
+        // because there is a situation that The array ends are empty, and the stored elements are in the middle
+        for (int i = 0; i < size; i++) {
+            newArray[i] = array[(head + i) % array.length]; // avoid the situation that array out of bounds
+        }
 
         array = newArray;
-        nextFirst = Math.abs(newFirstPos - 1) % array.length;
-        nextLast = Math.abs(nextFirst + size + 1) % array.length;
+        head = 0;
+        tail = size ;
     }
 
     public void addFirst(T item){
-        if (isEmpty()){
-            array[nextFirst]  = item;
-            nextFirst = (nextFirst - 1 + array.length) % array.length;
-            size ++;
-            return;
-        }
         if (size == array.length){
             resize(size*2);
         }
-        array[nextFirst] = item;
-        nextFirst = (nextFirst - 1 + array.length) % array.length;
+
+        head = (head - 1 + array.length) % array.length;
+        array[head] = item;
         size ++;
     }
-    public void addLast(T item){
-        if (isEmpty()){
 
-            array[nextLast] = item;
-            nextLast = (nextLast + 1) % array.length;
-            size ++;
-            return;
-        }
+    public void addLast(T item){
         if (size == array.length){
             resize(size*2);
         }
-        array[nextLast] = item;
-        nextLast = (nextLast + 1) % array.length;
+        array[tail] = item;
+        tail = (tail + 1) % array.length;
         size ++;
     }
 
@@ -84,14 +75,14 @@ public class ArrayDeque<T> {
         if (size == 0){
             return null;
         }
-        int index = (nextFirst + 1 ) % array.length;
-        T t = array[index];
-        array[index] = null;
-        nextFirst = index;
+        int index = (head + 1 ) % array.length;
+        T t = array[head];
+        array[head] = null;
+        head = index;
         size --;
 
         // downsize the array when usage ratio is too small
-        if (size > 0 && size < array.length * MIN_USAGE_RATIO) {
+        if (size > InitSize && size < array.length * MIN_USAGE_RATIO) {
             resize(array.length/2);
         }
         return t;
@@ -101,14 +92,15 @@ public class ArrayDeque<T> {
         if (size == 0){
             return null;
         }
-        int index = (nextLast - 1 + array.length) % array.length;
+        // tail = nextLast, so we need to remove the one before it
+        int index = (tail - 1 + array.length) % array.length;
         T t = array[index];
         array[index] = null;
-        nextLast = index;
+        tail = index;
         size -- ;
 
         // downsize the array when usage ratio is too small
-        if (size > 0 && size < array.length * MIN_USAGE_RATIO) {
+        if (size > InitSize && size < array.length * MIN_USAGE_RATIO) {
             resize(size);
         }
         return t;
@@ -118,6 +110,8 @@ public class ArrayDeque<T> {
         if (index > size - 1 || index < 0){
             return null;
         }
+
+        // add head to correctly locate the index
         return array[index];
     }
 
@@ -136,10 +130,10 @@ public class ArrayDeque<T> {
 
         @Override
         public T next() {
-           if (hasNext()){
-               return array[index++];
-           }
-           throw new NoSuchElementException();
+            if (hasNext()){
+                return array[index++];
+            }
+            throw new NoSuchElementException();
         }
     }
 

@@ -4,7 +4,7 @@ package deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LinkedListDeque<T> {
+public class LinkedListDeque<T> implements Deque<T> {
     private class Node<Generic> {
         Generic item;
         Node<Generic> previous;
@@ -21,6 +21,7 @@ public class LinkedListDeque<T> {
     private Node<T> sentinel = new Node<>(null);
     private Integer size;
 
+    @Override
     public void addFirst(T item) {
         Node<T> addNode = new Node<>(item);
         addNode.previous = sentinel;
@@ -35,6 +36,7 @@ public class LinkedListDeque<T> {
         size ++;
     }
 
+    @Override
     //almost same as addFirst because of circular
     public void addLast(T item) {
         Node<T> addNode = new Node<>(item);
@@ -46,14 +48,14 @@ public class LinkedListDeque<T> {
         size ++;
     }
 
-    public boolean isEmpty() {
-        return (sentinel.next == sentinel.previous);
-    }
 
+
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         // cannot directly modify the deque when iterate
         Node<T> current = sentinel.next;
@@ -64,6 +66,7 @@ public class LinkedListDeque<T> {
         System.out.println();
     }
 
+    @Override
     public T removeFirst() {
         Node<T> firstNode = sentinel.next;
         if (isEmpty()) {
@@ -76,6 +79,7 @@ public class LinkedListDeque<T> {
         return firstNode.item;
     }
 
+    @Override
     public T removeLast() {
         Node<T> lastNode = sentinel.previous;
         if (isEmpty()) {
@@ -88,6 +92,7 @@ public class LinkedListDeque<T> {
         return lastNode.item;
     }
 
+    @Override
     public T get(int index){
         if (index < 0 || index >= size) {
             return null;
